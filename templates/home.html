@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}JaSN — Marketplace de Confiance du Sénégal{% endblock %}
+
+{% block content %}
+
+  <!-- HERO -->
+  <section class="bg-stone-900 text-white py-20 px-4">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-orange-900 border border-orange-700 text-orange-300 text-xs font-semibold px-3 py-1 rounded mb-6 uppercase tracking-widest">
+          <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+          Marketplace de confiance · Sénégal
+        </div>
+        <h1 class="text-5xl font-bold leading-tight mb-4">
+          Commerce<br>
+          <span class="text-orange-500">sécurisé.</span><br>
+          <span class="text-amber-400">Local.</span> Réel.
+        </h1>
+        <p class="text-stone-400 text-sm mb-2">Jëf ak Yoon — Agis avec méthode.</p>
+        <p class="text-stone-300 leading-relaxed mb-8">
+          JaSN est la première marketplace sénégalaise avec système de séquestre intégré.
+          Votre argent est protégé jusqu'à la livraison confirmée.
+        </p>
+        <div class="flex gap-3 flex-wrap">
+          <a href="/catalogue/" class="bg-orange-700 hover:bg-orange-600 text-white px-6 py-3 rounded font-semibold transition">
+            Voir le catalogue →
+          </a>
+          <a href="/accounts/inscription/" class="border border-white text-white hover:bg-white hover:text-stone-900 px-6 py-3 rounded font-medium transition">
+            Devenir vendeur
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-stone-800 rounded-lg p-5 text-center">
+          <div class="text-3xl font-bold text-orange-500 mb-1">100%</div>
+          <div class="text-stone-400 text-xs">Paiements sécurisés</div>
+        </div>
+        <div class="bg-stone-800 rounded-lg p-5 text-center">
+          <div class="text-3xl font-bold text-amber-400 mb-1">Wave</div>
+          <div class="text-stone-400 text-xs">& Orange Money intégrés</div>
+        </div>
+        <div class="bg-stone-800 rounded-lg p-5 text-center">
+          <div class="text-3xl font-bold mb-1">🇸🇳</div>
+          <div class="text-stone-400 text-xs">Made in Sénégal</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLÈMES RÉSOLUS -->
+  <section class="bg-stone-800 text-white py-10 px-4">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-px bg-stone-700">
+      <div class="bg-stone-800 p-8 border-l-4 border-amber-400">
+        <div class="text-4xl font-bold text-amber-400 mb-2">71%</div>
+        <p class="text-stone-400 text-sm">des Sénégalais craignent les arnaques en ligne. JaSN résout ça.</p>
+      </div>
+      <div class="bg-stone-800 p-8 border-l-4 border-orange-500">
+        <div class="text-4xl font-bold text-amber-400 mb-2">80%</div>
+        <p class="text-stone-400 text-sm">sans compte bancaire. Wave & Orange Money disponibles nativement.</p>
+      </div>
+      <div class="bg-stone-800 p-8 border-l-4 border-blue-500">
+        <div class="text-4xl font-bold text-amber-400 mb-2">∞</div>
+        <p class="text-stone-400 text-sm">Adressage par repères locaux. Pas besoin de rue précise pour livrer.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMENT ÇA MARCHE -->
+  <section class="py-16 px-4">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-orange-700 text-xs font-semibold uppercase tracking-widest mb-2">✦ Mécanisme clé</p>
+      <h2 class="text-3xl font-bold mb-10">L'Escrow : votre argent, sous protection</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% for etape in etapes_escrow %}
+        <div class="text-center">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl mx-auto mb-3 border-2 {{ etape.couleur }}">
+            {{ etape.icone }}
+          </div>
+          <div class="text-sm font-semibold mb-1">{{ etape.titre }}</div>
+          <div class="text-xs text-stone-500">{{ etape.desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- DERNIERS PRODUITS -->
+  {% if produits %}
+  <section class="py-12 px-4 bg-stone-100">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-orange-700 text-xs font-semibold uppercase tracking-widest mb-2">✦ Catalogue</p>
+      <h2 class="text-3xl font-bold mb-8">Derniers produits</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {% for produit in produits %}
+        <a href="/catalogue/{{ produit.id }}/" class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition group">
+          <div class="h-40 bg-stone-200 flex items-center justify-center text-4xl">
+            {% if produit.image %}
+              <img src="{{ produit.image.url }}" class="w-full h-full object-cover">
+            {% else %}
+              🛍️
+            {% endif %}
+          </div>
+          <div class="p-3">
+            <div class="text-sm font-semibold group-hover:text-orange-700 transition mb-1">{{ produit.nom }}</div>
+            <div class="text-orange-700 font-bold text-sm">{{ produit.prix }} FCFA</div>
+            {% if produit.made_in_senegal %}
+              <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded mt-1 inline-block">🇸🇳 Local</span>
+            {% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Catalogue — JaSN{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-10">
+
+  <!-- En-tête -->
+  <div class="mb-8">
+    <p class="text-orange-700 text-xs font-semibold uppercase tracking-widest mb-1">✦ Catalogue</p>
+    <h1 class="text-3xl font-bold text-stone-900">Tous les produits</h1>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-8">
+
+    <!-- SIDEBAR FILTRES -->
+    <aside class="w-full md:w-56 flex-shrink-0">
+      <form method="get">
+
+        <!-- Recherche -->
+        <div class="mb-6">
+          <label class="block text-xs font-semibold text-stone-500 uppercase tracking-widest mb-2">Recherche</label>
+          <input type="text" name="q" value="{{ recherche|default:'' }}"
+            placeholder="Nom du produit..."
+            class="w-full border border-stone-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-500">
+        </div>
+
+        <!-- Made in Sénégal -->
+        <div class="mb-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="made_in" value="1"
+              {% if made_in %}checked{% endif %}
+              class="rounded border-stone-300 text-orange-700">
+            <span class="text-sm font-medium text-stone-700">🇸🇳 Made in Sénégal</span>
+          </label>
+        </div>
+
+        <!-- Catégories -->
+        <div class="mb-6">
+          <label class="block text-xs font-semibold text-stone-500 uppercase tracking-widest mb-2">Catégorie</label>
+          <div class="flex flex-col gap-1">
+            <a href="{% url 'catalogue' %}{% if made_in %}?made_in=1{% endif %}"
+              class="text-sm px-3 py-1.5 rounded transition
+                {% if not categorie_active %}bg-orange-700 text-white{% else %}text-stone-600 hover:text-orange-700{% endif %}">
+              Toutes
+            </a>
+            {% for cat in categories %}
+            <a href="?categorie={{ cat.slug }}{% if made_in %}&made_in=1{% endif %}"
+              class="text-sm px-3 py-1.5 rounded transition
+                {% if categorie_active == cat.slug %}bg-orange-700 text-white{% else %}text-stone-600 hover:text-orange-700{% endif %}">
+              {{ cat.icone }} {{ cat.nom }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="submit"
+          class="w-full bg-stone-900 hover:bg-orange-700 text-white text-sm py-2 rounded transition">
+          Filtrer
+        </button>
+      </form>
+    </aside>
+
+    <!-- GRILLE PRODUITS -->
+    <div class="flex-1">
+      {% if produits %}
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {% for produit in produits %}
+          <a href="{% url 'detail_produit' produit.id %}"
+            class="bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md hover:border-orange-200 transition group">
+
+            <!-- Image -->
+            <div class="h-40 bg-stone-100 flex items-center justify-center overflow-hidden">
+              {% if produit.image %}
+                <img src="{{ produit.image.url }}" class="w-full h-full object-cover group-hover:scale-105 transition">
+              {% else %}
+                <span class="text-4xl">🛍️</span>
+              {% endif %}
+            </div>
+
+            <!-- Infos -->
+            <div class="p-3">
+              {% if produit.made_in_senegal %}
+                <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded mb-1 inline-block">🇸🇳 Local</span>
+              {% endif %}
+              <div class="text-sm font-semibold text-stone-900 group-hover:text-orange-700 transition leading-snug mb-1">
+                {{ produit.nom }}
+              </div>
+              <div class="text-xs text-stone-400 mb-2">{{ produit.boutique.nom }}</div>
+              <div class="flex items-center justify-between">
+                <span class="text-orange-700 font-bold text-sm">{{ produit.prix }} FCFA</span>
+                {% if produit.en_stock %}
+                  <span class="text-xs text-green-600">● En stock</span>
+                {% else %}
+                  <span class="text-xs text-red-400">● Rupture</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+
+      {% else %}
+        <!-- Aucun produit -->
+        <div class="text-center py-20 text-stone-400">
+          <div class="text-5xl mb-4">🔍</div>
+          <div class="font-semibold text-stone-600 mb-1">Aucun produit trouvé</div>
+          <div class="text-sm">Essayez d'autres filtres ou revenez plus tard.</div>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

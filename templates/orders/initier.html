@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Commander — {{ produit.nom }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-10">
+
+  <div class="text-sm text-stone-400 mb-6 flex items-center gap-2">
+    <a href="/catalogue/" class="hover:text-orange-700">Catalogue</a>
+    <span>›</span>
+    <a href="{% url 'detail_produit' produit.id %}" class="hover:text-orange-700">{{ produit.nom }}</a>
+    <span>›</span>
+    <span class="text-stone-700">Commander</span>
+  </div>
+
+  <h1 class="text-2xl font-bold text-stone-900 mb-8">Votre commande</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    <!-- Résumé produit -->
+    <div class="bg-stone-50 border border-stone-200 rounded-xl p-5">
+      <div class="h-36 bg-stone-200 rounded-lg flex items-center justify-center mb-4 overflow-hidden">
+        {% if produit.image %}
+          <img src="{{ produit.image.url }}" class="w-full h-full object-cover rounded-lg">
+        {% else %}
+          <span class="text-5xl">🛍️</span>
+        {% endif %}
+      </div>
+      <div class="font-semibold text-stone-900 mb-1">{{ produit.nom }}</div>
+      <div class="text-stone-400 text-sm mb-3">{{ produit.boutique.nom }}</div>
+      <div class="text-2xl font-bold text-orange-700">{{ produit.prix }} FCFA</div>
+      <div class="text-xs text-stone-400 mt-1">par unité · {{ produit.stock }} en stock</div>
+    </div>
+
+    <!-- Formulaire -->
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- Quantité -->
+      <div class="mb-5">
+        <label class="block text-sm font-semibold text-stone-700 mb-2">Quantité</label>
+        <input type="number" name="quantite" value="1" min="1" max="{{ produit.stock }}"
+          class="w-full border border-stone-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-500">
+      </div>
+
+      <!-- Méthode de paiement -->
+      <div class="mb-5">
+        <label class="block text-sm font-semibold text-stone-700 mb-2">Méthode de paiement</label>
+        <div class="flex flex-col gap-2">
+          <label class="flex items-center gap-3 border border-stone-200 rounded-lg p-3 cursor-pointer hover:border-orange-300 transition has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50">
+            <input type="radio" name="methode_paiement" value="wave" required>
+            <span class="text-blue-600 font-bold">💙 Wave</span>
+          </label>
+          <label class="flex items-center gap-3 border border-stone-200 rounded-lg p-3 cursor-pointer hover:border-orange-300 transition has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50">
+            <input type="radio" name="methode_paiement" value="orange_money">
+            <span class="text-orange-500 font-bold">🟠 Orange Money</span>
+          </label>
+          <label class="flex items-center gap-3 border border-stone-200 rounded-lg p-3 cursor-pointer hover:border-orange-300 transition has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50">
+            <input type="radio" name="methode_paiement" value="cash">
+            <span class="text-green-600 font-bold">💵 Cash à la livraison</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Adresse livraison -->
+      <div class="mb-5">
+        <label class="block text-sm font-semibold text-stone-700 mb-2">Adresse de livraison</label>
+        <textarea name="adresse_livraison" rows="2" required
+          placeholder="Ex : Derrière la mosquée de Liberté 6, Dakar"
+          class="w-full border border-stone-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-500"></textarea>
+      </div>
+
+      <!-- Téléphone -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-stone-700 mb-2">Téléphone de livraison</label>
+        <input type="text" name="telephone_livraison" required
+          placeholder="+221 77 123 45 67"
+          value="{{ request.user.telephone }}"
+          class="w-full border border-stone-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-500">
+      </div>
+
+      <button type="submit"
+        class="w-full bg-orange-700 hover:bg-stone-900 text-white font-semibold py-3 rounded transition">
+        Continuer vers le paiement →
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

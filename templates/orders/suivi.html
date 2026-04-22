@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block title %}Suivi commande #{{ commande.id }} — JaSN{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-10">
+
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-stone-900">Commande #{{ commande.id }}</h1>
+      <p class="text-stone-400 text-sm mt-1">{{ commande.date_creation|date:"d/m/Y à H:i" }}</p>
+    </div>
+    <span class="px-3 py-1 rounded-full text-sm font-semibold
+      {% if commande.statut == 'confirme' %}bg-green-100 text-green-700
+      {% elif commande.statut == 'litige' %}bg-red-100 text-red-700
+      {% elif commande.statut == 'paye' or commande.statut == 'en_livraison' %}bg-amber-100 text-amber-700
+      {% else %}bg-stone-100 text-stone-600{% endif %}">
+      {{ commande.get_statut_display }}
+    </span>
+  </div>
+
+  <!-- TIMELINE ESCROW -->
+  <div class="bg-white border border-stone-200 rounded-xl p-6 mb-6">
+    <div class="text-xs text-stone-400 uppercase tracking-widest mb-5">Suivi escrow</div>
+    <div class="relative">
+      <!-- Ligne verticale -->
+      <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-stone-200"></div>
+
+      {% with s=commande.statut %}
+
+      <!-- Étape 1 : Commande passée -->
+      <div class="flex gap-4 mb-6 relative">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10
+          bg-green-500 text-white text-sm">✓</div>
+        <div class="pt-1">
+          <div class="text-sm font-semibold text-stone-900">Commande passée</div>
+          <div class="text-xs text-stone-400">{{ commande.date_creation|date:"d/m/Y à H:i" }}</div>
+        </div>
+      </div>
+
+      <!-- Étape 2 : Paiement -->
+      <div class="flex gap-4 mb-6 relative">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 text-sm
+          {% if s == 'en_attente' %}bg-stone-200 text-stone-400
+          {% else %}bg-green-500 text-white{% endif %}">
+          {% if s == 'en_attente' %}2{% else %}✓{% endif %}
+        </div>
+        <div class="pt-1">
+          <div class="text-sm font-semibold {% if s == 'en_attente' %}text-stone-400{% else %}text-stone-900{% endif %}">
+            Paiement sécurisé — fonds en escrow
+          </div>
+          {% if commande.date_paiement %}
+            <div class="text-xs text-stone-400">{{ commande.date_paiement|date:"d/m/Y à H:i" }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Étape 3 : En livraison -->
+      <div class="flex gap-4 mb-6 relative">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 text-sm
+          {% if s == 'en_livraison' or s == 'livre' or s == 'confirme' %}bg-green-500 text-white
+          {% else %}bg-stone-200 text-stone-400{% endif %}">
+          {% if s == 'en_livraison' or s == 'livre' or s == 'confirme' %}✓{% else %}3{% endif %}
+        </div>
+        <div class="pt-1">
+          <div class="text-sm font-semibold {% if s in 'paye,en_attente' %}text-stone-400{% else %}text-stone-900{% endif %}">
+            En cours de livraison
+          </div>
+          {% if commande.date_livraison %}
+            <div class="text-xs text-stone-400">{{ commande.date_livraison|date:"d/m/Y à H:i" }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Étape 4 : Confirmé -->
+      <div class="flex gap-4 relative">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 text-sm
+          {% if s == 'confirme' %}bg-green-500 text-white{% else %}bg-stone-200 text-stone-400{% endif %}">
+          {% if s == 'confirme' %}✓{% else %}4{% endif %}
+        </div>
+        <div class="pt-1">
+          <div class="text-sm font-semibold {% if s == 'confirme' %}text-stone-900{% else %}text-stone-400{% endif %}">
+            Livraison confirmée — vendeur payé
+          </div>
+          {% if commande.date_confirmation %}
+            <div class="text-xs text-stone-400">{{ commande.date_confirmation|date:"d/m/Y à H:i" }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% endwith %}
+    </div>
+  </div>
+
+  <!-- ACTIONS selon le rôle et le statut -->
+  <div class="space-y-3">
+
+    {% if user == commande.acheteur %}
+      {% if commande.statut == 'en_livraison' %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="confirmer_livraison">
+        <button type="submit"
+          class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition">
+          ✅ J'ai reçu ma commande — Confirmer la livraison
+        </button>
+      </form>
+      {% endif %}
+    {% endif %}
+
+    {% if user == commande.vendeur %}
+      {% if commande.statut == 'paye' %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="marquer_livraison">
+        <button type="submit"
+          class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition">
+          🚚 Marquer comme expédié
+        </button>
+      </form>
+      {% endif %}
+    {% endif %}
+
+    {% if commande.statut not in 'confirme,annule,litige,rembourse' %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="ouvrir_litige">
+      <button type="submit"
+        class="w-full border border-red-300 text-red-600 hover:bg-red-50 font-medium py-3 rounded-xl transition text-sm">
+        ⚠️ Signaler un problème / Ouvrir un litige
+      </button>
+    </form>
+    {% endif %}
+
+  </div>
+
+  <!-- Détails commande -->
+  <div class="mt-8 bg-stone-50 border border-stone-200 rounded-xl p-5">
+    <div class="text-xs text-stone-400 uppercase tracking-widest mb-3">Détails</div>
+    {% for ligne in commande.lignes.all %}
+    <div class="flex justify-between items-center py-2 border-b border-stone-100 last:border-0">
+      <div>
+        <div class="text-sm font-medium text-stone-900">{{ ligne.produit.nom }}</div>
+        <div class="text-xs text-stone-400">{{ ligne.quantite }} × {{ ligne.prix_unitaire }} FCFA</div>
+      </div>
+      <div class="font-bold text-stone-900">{{ ligne.sous_total }} FCFA</div>
+    </div>
+    {% endfor %}
+    <div class="flex justify-between items-center pt-3 mt-2">
+      <span class="font-bold text-stone-900">Total</span>
+      <span class="text-xl font-bold text-orange-700">{{ commande.montant_total }} FCFA</span>
+    </div>
+    <div class="text-xs text-stone-400 mt-3">
+      Livraison : {{ commande.adresse_livraison }} · {{ commande.telephone_livraison }}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

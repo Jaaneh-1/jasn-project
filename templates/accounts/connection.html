@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Connexion — JaSN{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-stone-100 flex items-center justify-center py-12 px-4">
+  <div class="bg-white rounded-xl shadow-sm border border-stone-200 w-full max-w-sm p-8">
+
+    <div class="text-center mb-8">
+      <div class="text-3xl font-bold text-orange-700 mb-1">Ja<span class="text-amber-500">SN</span></div>
+      <h1 class="text-xl font-bold text-stone-900">Connexion</h1>
+    </div>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-sm font-medium text-stone-700 mb-1">Nom d'utilisateur</label>
+        <input type="text" name="username" required autofocus
+          class="w-full border border-stone-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-500">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-stone-700 mb-1">Mot de passe</label>
+        <input type="password" name="password" required
+          class="w-full border border-stone-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-orange-500">
+      </div>
+      <button type="submit"
+        class="w-full bg-orange-700 hover:bg-stone-900 text-white font-semibold py-3 rounded transition">
+        Se connecter →
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-stone-500 mt-6">
+      Pas encore de compte ?
+      <a href="/accounts/inscription/" class="text-orange-700 font-medium hover:underline">S'inscrire</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

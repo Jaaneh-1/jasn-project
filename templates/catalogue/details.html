@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}{{ produit.nom }} — JaSN{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-10">
+
+  <!-- Fil d'Ariane -->
+  <div class="text-sm text-stone-400 mb-6 flex items-center gap-2">
+    <a href="/" class="hover:text-orange-700">Accueil</a>
+    <span>›</span>
+    <a href="/catalogue/" class="hover:text-orange-700">Catalogue</a>
+    <span>›</span>
+    <span class="text-stone-700">{{ produit.nom }}</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+
+    <!-- Image -->
+    <div class="bg-stone-100 rounded-xl overflow-hidden h-80 flex items-center justify-center">
+      {% if produit.image %}
+        <img src="{{ produit.image.url }}" class="w-full h-full object-cover">
+      {% else %}
+        <span class="text-8xl">🛍️</span>
+      {% endif %}
+    </div>
+
+    <!-- Infos produit -->
+    <div>
+      {% if produit.made_in_senegal %}
+        <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full mb-3 inline-block font-semibold">
+          🇸🇳 Made in Sénégal
+        </span>
+      {% endif %}
+
+      <h1 class="text-2xl font-bold text-stone-900 mb-1">{{ produit.nom }}</h1>
+
+      {% if produit.nom_wolof %}
+        <p class="text-stone-400 text-sm italic mb-3">{{ produit.nom_wolof }}</p>
+      {% endif %}
+
+      <div class="text-3xl font-bold text-orange-700 mb-4">{{ produit.prix }} FCFA</div>
+
+      <!-- Boutique -->
+      <div class="flex items-center gap-2 mb-4 p-3 bg-stone-50 rounded-lg border border-stone-200">
+        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-sm">🏪</div>
+        <div>
+          <div class="text-sm font-semibold text-stone-800">{{ produit.boutique.nom }}</div>
+          <div class="text-xs text-stone-400">{{ produit.boutique.ville }}</div>
+        </div>
+        {% if produit.boutique.est_certifiee %}
+          <span class="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-semibold">✓ Certifiée</span>
+        {% endif %}
+      </div>
+
+      <!-- Stock -->
+      <div class="mb-4">
+        {% if produit.en_stock %}
+          <span class="text-green-600 text-sm font-medium">● En stock ({{ produit.stock }} disponibles)</span>
+        {% else %}
+          <span class="text-red-400 text-sm font-medium">● Rupture de stock</span>
+        {% endif %}
+      </div>
+
+      <!-- Description -->
+      <p class="text-stone-600 text-sm leading-relaxed mb-6">{{ produit.description }}</p>
+
+      <!-- Escrow info -->
+      <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-6 flex items-start gap-3">
+        <span class="text-xl">🔒</span>
+        <div>
+          <div class="text-sm font-semibold text-green-800">Paiement sécurisé par escrow</div>
+          <div class="text-xs text-green-600 mt-0.5">Votre argent est bloqué jusqu'à la confirmation de livraison.</div>
+        </div>
+      </div>
+
+      <!-- Bouton achat -->
+      {% if produit.en_stock %}
+        {% if user.is_authenticated %}
+          <a href="{% url 'initier_commande' produit.id %}" class="block w-full bg-orange-700 hover:bg-stone-900 text-white text-center font-semibold py-3 rounded transition">
+            Acheter maintenant →
+          </a>
+        {% else %}
+          <a href="/accounts/login/" class="block w-full bg-orange-700 hover:bg-stone-900 text-white text-center font-semibold py-3 rounded transition">
+            Se connecter pour acheter →
+          </a>
+        {% endif %}
+      {% else %}
+        <button disabled class="block w-full bg-stone-300 text-stone-500 text-center font-semibold py-3 rounded cursor-not-allowed">
+          Indisponible
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Autres produits de la boutique -->
+  {% if autres %}
+  <div>
+    <h2 class="text-xl font-bold text-stone-900 mb-4">Autres produits de {{ produit.boutique.nom }}</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      {% for autre in autres %}
+      <a href="{% url 'detail_produit' autre.id %}"
+        class="bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition group">
+        <div class="h-32 bg-stone-100 flex items-center justify-center overflow-hidden">
+          {% if autre.image %}
+            <img src="{{ autre.image.url }}" class="w-full h-full object-cover">
+          {% else %}
+            <span class="text-3xl">🛍️</span>
+          {% endif %}
+        </div>
+        <div class="p-3">
+          <div class="text-sm font-semibold text-stone-900 group-hover:text-orange-700 transition mb-1">{{ autre.nom }}</div>
+          <div class="text-orange-700 font-bold text-sm">{{ autre.prix }} FCFA</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

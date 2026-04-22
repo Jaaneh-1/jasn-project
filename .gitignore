@@ -1,0 +1,13 @@
+#Environnement virtuel
+venv/
+
+#Variables secretes JAMAIS sur GitHub
+.env
+
+#Fichiers Python compilés
+__pycache__/
+*.pyc
+
+#Fichiers Django
+*.sqlite3
+media/
