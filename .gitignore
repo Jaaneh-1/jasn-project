@@ -1,13 +1,17 @@
-#Environnement virtuel
+# Environnement virtuel
 venv/
 
-#Variables secretes JAMAIS sur GitHub
+# Variables secrètes — JAMAIS sur GitHub
 .env
 
-#Fichiers Python compilés
+# Fichiers Python compilés
 __pycache__/
 *.pyc
 
-#Fichiers Django
+# Fichiers Django
 *.sqlite3
 media/
+
+# Google Drive
+.tmp.driveupload/
+.tmp.drivedownload/
